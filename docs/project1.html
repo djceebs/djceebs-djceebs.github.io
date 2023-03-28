@@ -228,11 +228,17 @@ $(document).ready(function () {
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="index.html"> </a>
+      <a class="navbar-brand" href="index.html">Charlie Bruce</a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
-        <li class="dropdown">
+        <li>
+  <a href="index.html">About</a>
+</li>
+<li>
+  <a href="contact.html">Contact</a>
+</li>
+<li class="dropdown">
   <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Projects
      
@@ -240,15 +246,12 @@ $(document).ready(function () {
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="./project1.html">Time Series Migration</a>
+      <a href="project1.html">Time Series Migration</a>
     </li>
     <li>
-      <a href="./project2.html">DC Elections Mapping</a>
+      <a href="project2.html">DC Elections Mapping</a>
     </li>
   </ul>
-</li>
-<li>
-  <a href="./contact.html">Contact</a>
 </li>
       </ul>
       <ul class="nav navbar-nav navbar-right">
@@ -288,9 +291,15 @@ these trends, which was a time consuming process. I built a R script
 that scraped the data from the public police department data portals,
 turning a process that took hours to complete in only seconds.</p>
 <div class="figure">
-<img src="docs/images/timeseries.png" alt="" />
+<img src="images/timeseries.png" alt="" />
 <p class="caption">Time Series Chart</p>
 </div>
+<p>The black line represents the daily record of aggravated assault
+trends, while the red line is the rolling 5 year average. The 5 year
+average is intended to explain whether the daily pattern is a positive
+or negative deviation from the 5 year average. The two trends are
+closely correlated, telling us that current trends do not drastically
+deviate from previous ones.</p>
 </div>
 
 
