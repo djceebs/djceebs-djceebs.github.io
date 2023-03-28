@@ -11,7 +11,7 @@ left:
        - text: "Time Series Migration"
          href: project1.html
        - text: "DC Elections Mapping"
-         href: ./project2.html
+         href: project2.html
 right:
   - icon: fa-linkedin
     href: https://www.linkedin.com/in/charlie-b-2585a53b/
