@@ -1,11 +1,10 @@
 name: "Charlie Bruce"
-# R Markdown usage
----
+output_dir: 'docs'
 output:
   html_document:
-    theme:
-      bootswatch: minty
-      toc: true
-      toc_depth: 2
-      toc_float:
-       collapsed: false
+    theme: cerulean
+    highlight: zenburn
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
