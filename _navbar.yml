@@ -2,14 +2,16 @@ name: "Mywebsite"
 title: "Charlie Bruce"
 type: inverse
 left:
+  - text: "About"
+    href: .index.html
+  - text: "Contact"
+    href: .contact.html
   - text: "Projects"
     menu:
        - text: "Time Series Migration"
          href: .project1.html
        - text: "DC Elections Mapping"
          href: ./project2.html
-  - text: "Contact"
-    href: ./contact.html
 right:
   - icon: fa-linkedin
     href: https://www.linkedin.com/in/charlie-b-2585a53b/
