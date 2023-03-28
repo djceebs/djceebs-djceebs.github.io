@@ -16,6 +16,9 @@ My name is Charlie Bruce. I will be graduating with my Master's in Public Policy
 
 This website is a portfolio for my coding projects for prospective employers.
 
+#
+#
+#
 ### Email
 
 Send emails to [ceb8dv@virginia.edu](mailto:ceb8dv@virginia.edu)
