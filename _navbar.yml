@@ -1,19 +1,17 @@
 name: "Mywebsite"
-title: "My new website"
+title: " "
 type: inverse
 left:
-  - text: "About me"
+  - text: "Projects"
     menu:
-      - text: "Learn more about me"
-        href: ./aboutme.html
-  - text: "Project"
-    menu:
-       - text: "Project part 1"
+       - text: "Time Series Migration"
          href: ./project1.html
-       - text: "Project part 2"
+       - text: "DC Elections Mapping"
          href: ./project2.html
   - text: "Contact"
     href: ./contact.html
 right:
   - icon: fa-linkedin
     href: https://www.linkedin.com/in/charlie-b-2585a53b/
+  - icon: fa-question-circle
+    href: https://google.com

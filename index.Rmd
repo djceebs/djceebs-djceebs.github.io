@@ -10,6 +10,7 @@ output:
 #
 #
 #
+# About Me
 
 My name is Charlie Bruce. I will be graduating with my Master's in Public Policy in May 2023 from the [Frank Batten School of Leadership and Public Policy](https://batten.virginia.edu/) at UVA.
 
