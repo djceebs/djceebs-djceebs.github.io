@@ -5,7 +5,7 @@ left:
   - text: "Projects"
     menu:
        - text: "Time Series Migration"
-         href: ./project1.html
+         href: .project1.html
        - text: "DC Elections Mapping"
          href: ./project2.html
   - text: "Contact"
