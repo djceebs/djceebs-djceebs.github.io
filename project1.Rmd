@@ -1,0 +1,12 @@
+---
+title: "Time Series Visualization"
+output: 
+  html_document:
+    toc: FALSE
+---
+
+###
+
+In Summer 2022, I worked in the Criminal Division of the Department of Justice to analyze crime trends. Our office was tasked with visualizing the daily aggravated assault and homicide trends in over 20 major US cities. For the past few years, the office used STATA to map these trends, which was a time consuming process. I built a R script that scraped the data from the public police department data portals, turning a process that took hours to complete in only seconds.
+
+![Time Series Chart](docs/images/timeseries.png)
