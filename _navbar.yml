@@ -3,13 +3,13 @@ title: "Charlie Bruce"
 type: inverse
 left:
   - text: "About"
-    href: .index.html
+    href: index.html
   - text: "Contact"
-    href: .contact.html
+    href: contact.html
   - text: "Projects"
     menu:
        - text: "Time Series Migration"
-         href: .project1.html
+         href: project1.html
        - text: "DC Elections Mapping"
          href: ./project2.html
 right:
