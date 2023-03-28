@@ -1,9 +1,11 @@
-name: "My new website"
+name: "Charlie Bruce"
+# R Markdown usage
+---
 output:
   html_document:
-    theme: cerulean
-    highlight: zenburn
-    toc: true
-    toc_depth: 2
-    toc_float:
-      collapsed: false
+    theme:
+      bootswatch: minty
+      toc: true
+      toc_depth: 2
+      toc_float:
+       collapsed: false

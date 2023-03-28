@@ -15,5 +15,5 @@ left:
   - text: "Contact"
     href: ./contact.html
 right:
-  - icon: fa-github fa-lg
-    href: https://github.com/githubusername/mywebsite
+  - icon: fa-linkedin
+    href: https://www.linkedin.com/in/charlie-b-2585a53b/
