@@ -29,6 +29,9 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
@@ -219,6 +222,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -226,6 +292,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -266,7 +342,7 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://www.linkedin.com/in/charlie-b-2585a53b/">
+  <a href="www.linkedin.com/in/charlieebruce">
     <span class="fa fa-linkedin"></span>
      
   </a>
@@ -291,19 +367,16 @@ $(document).ready(function () {
 </div>
 
 
-<div id="section" class="section level3">
-<h3></h3>
+<div id="time-series-crime-analysis" class="section level1">
+<h1>Time Series Crime Analysis</h1>
 <p>In Summer 2022, I worked in the Criminal Division of the Department
 of Justice to analyze crime trends. Our office was tasked with
 visualizing the daily aggravated assault and homicide trends in over 20
 major US cities. For the past few years, the office used STATA to map
 these trends, which was a time consuming process. I built a R script
 that scraped the data from the public police department data portals,
-turning a process that took hours to complete in only seconds.</p>
-<div class="figure">
-<img src="images/timeseries.png" alt="" />
-<p class="caption">Time Series Chart</p>
-</div>
+turning a few hours of work to complete in only seconds.</p>
+<p><img src="images/timeseries.png" /></p>
 <p>The black line represents the daily record of aggravated assault
 trends, while the red line is the rolling 5 year average. The 5 year
 average is intended to explain whether the daily pattern is a positive
@@ -311,9 +384,23 @@ or negative deviation from the 5 year average. The two trends are
 closely correlated, telling us that current trends do not drastically
 deviate from previous ones.</p>
 </div>
+<div id="the-role-of-time-series-in-data-analysis"
+class="section level1">
+<h1>The role of Time Series in Data Analysis</h1>
+<p>Time series are a type of statistical model that track patterns over
+a specific time interval, like days, months, and years. Policy use this
+tool both to forecast future trends and effectively communicate data to
+stakeholders. The main charge of our office at DOJ was to answer the
+question “What is going on with crime in America?” through data. The
+above graph is a snapshot the Department can use to make big decisions
+like determining where to allocate resources like personnel and
+research.</p>
+</div>
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -346,6 +433,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
