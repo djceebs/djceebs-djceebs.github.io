@@ -1,11 +1,13 @@
 ---
 title: "Wrangling Election Data"
-output: 
+output:
+  pdf_document:
+    toc: yes
   html_document:
-    toc: true
-    toc_float: true
-    code_folding: hide
-    
+    toc: yes
+    toc_float: yes
+    includes:
+      in_header: GA_Script.html
 ---
 
 ```{r setup, include=FALSE}
@@ -27,6 +29,7 @@ library("knitr")
 library("kableExtra")
 library("rcartocolor")
 library("wesanderson")
+options(tigris_use_cache = TRUE)
 
 ```
 # Background on DC Mayoral Primary
@@ -36,277 +39,120 @@ library("wesanderson")
 
 On June 22nd, 2022, Muriel Bowser won her second term for DC Mayor. Bowser's message: she is the next Marion Barry, the only mayor to serve three consecutive terms. During her election night victory, she said: "Tonight we choose a future where we won’t lose our Chocolate City, but we will invest in it, and we will continue to be a city for Black Washingtonians. ” [from DCist](https://dcist.com/story/22/06/21/dc-2022-primary-election-results-bowser-victory/)
 
-Mayor Bowser also won with just 49.8% of the vote. As someone who is interested in election data, I wanted to better understand the results of the elections through multiple visualizations. 
-
-Across the three visualizations, green will represent Mayor Bowser, blue will represent Robert White, and orange will represent Trayon White. 
-
-
-# Cleaning the Data
-
-
-Here is data from the DC Elections office of the 2022 Primary. I did some simple filtering to narrow it to the Mayor's election.
+Mayor Bowser also won with just 49.8% of the vote. As someone who is interested in election data, I wanted to better understand the results of the elections through chloropleth visualizations. 
 
 
 ```{r}
 
-dccsv <- read_csv("data/June_21_2022_Primary_Election_Certified_Results.csv")
-
-candidates <- c("Muriel E. Bowser", 'Trayon "Washington DC" White', 
-                "Robert White")
-
-dc_filter <- dccsv %>% #Filter to Candidates, Ward Number, Precinct, & Votes
-  select(PrecinctNumber, WardNumber, Candidate, Votes) 
-
-dc_clean <- dc_filter %>% 
-  filter(Candidate %in% candidates)
-
-dc2 <- dc_clean %>% #better way to convert from long to wide
-  group_by(PrecinctNumber) %>% # create sum by precinct
-  mutate(nvotes = sum(Votes)) %>% 
-  ungroup() %>% 
-  pivot_wider(names_from = Candidate, values_from = Votes) %>% 
-  rename(precinct = PrecinctNumber, ward = WardNumber, 
-         bowser = `Muriel E. Bowser`, twhite = `Trayon "Washington DC" White`, rwhite = `Robert White`) %>% 
-  mutate()
-
-```
-
-## Election Result Table
-
-```{r kbl, out.width = "50%"}
-dc2 %>% 
-  kbl(align = "c") %>% 
-  kable_styling(bootstrap_options = c("striped", "hover")) %>% 
-  scroll_box(height = "300px")
-```
-
-
-
-So what does this mean? It's hard to make heads or tails of a bunch of numbers. Luckily, R allows us to visualize the data in multiple ways to tell different stories.
-
-
-
-```{r}
-dc2 <- dc2 %>% 
-  mutate(across(bowser:rwhite, .fns = ~ .x/nvotes, .names = "{.col}_percent"), # percent of vote
-         across(bowser:rwhite, .fns = ~ .x - (nvotes-.x), .names = "{.col}_margin"), # margin of vote
-         across(bowser_margin:rwhite_margin, .fns = ~ .x/nvotes, .names = "{.col}pct")) # percent margin
-
 
 ```
 
 
-## Graphing Vote Totals in Lineplot
+# Chloropleth Mapping 
 
+Below is a map of DC precincts courtesy of the DC Department of Elections.
 
-
-Let's look at total number of votes per precinct in a simple linegraph. 
-
-
-```{r}
-d <- dc2 %>% 
-  ggplot(aes(x = precinct)) +
-  geom_line(aes(y = bowser), color = "mediumseagreen") +
-  geom_line(aes(y = rwhite), color = "royalblue1") +
-  geom_line(aes(y = twhite), color = "orange") +
-  labs(
-    title = "2022 DC Primary Election Results",
-    subtitle = "Source: Department of Elections Website",
-    x = "Precinct Number",
-    y = "Number of votes") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5)) 
-print(d)
-
-```
-
-
-This would give us the impression that Mayor Bowser is the clear and consistent favorite. What if we looked at the percent point break down per precinct?
-
-
-```{r}
-c <- dc2 %>% 
-  ggplot(aes(x = precinct)) +
-  geom_line(aes(y = bowser_percent), color = "mediumseagreen") +
-  geom_line(aes(y = rwhite_percent), color = "royalblue1") +
-  geom_line(aes(y = twhite_percent), color = "orange") +
-  labs(
-    title = "2022 DC Primary Election Results",
-    subtitle = "Source: Department of Elections Website",
-    x = "Precinct Number",
-    y = "Percent Margin of Victory") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  theme(plot.subtitle = element_text(hjust = 0.5)) 
-print(c)
-
-```
-
-
-
-It looks a little closer. Mayor Bowser and Robert White are neck and neck in a few precincts. Trayon White is the clear favorite in a few. The two gaps are the precincts that don't report any votes.
-
-
-# Chloropleth Mapping {.tabset}
-
-
-```{r, results ='hide'}
-
-# Data from: https://opendata.dc.gov/datasets/DCGIS::voting-precinct-2019/about
-
- temp_shapefile <- tempfile()
- download.file("https://opendata.arcgis.com/api/v3/datasets/09f6810bb5a84ae6a07272b05bea6528_27/downloads/data?format=shp&spatialRefId=4326&where=1%3D1", temp_shapefile)
- unzip(temp_shapefile)
-
-dcmapdata <- sf::st_read("Voting_Precinct_2019.shp")
-
-```
-
-
-Lines on a graph are great, but they don't explain very well where these close precincts were in the city. In which precincts did each candidate perform well?
-
-This is a map of dc precincts courtesy of the DC Department of Elections.
-
-As we can see, there tends to be a geographic cluster where each candidate performed well. Unfortunately, these choropleths only explain where each candidate did well relative to their best performance. Trayon White's best performance was with 40% of the vote, whereas Mayor Bowser won some with a blowout of close to 80%.
+As we can see, there tends to be a geographic cluster where each candidate performed well. These choropleths only explain where each candidate did well relative to their best performance. Trayon White's best performance in one precinct was with 40% of the vote, whereas Mayor Bowser won some precincts with a blowout of close to 80%.
 
 
 ```{r}
 
-dcmapclean <- dcmapdata %>%
-   mutate(NAME = str_remove(NAME, "Precinct "),
-          precinct = NAME)
- #sum(dc2$precinct %in% dcmapclean$precinct) #Code checks if the recoded
- #precinct variables worked
+dc_candidates <- readRDS("data/dc_candidates.RDS")
 
-dc2$precinct <- as.character(dc2$precinct)
+bowser_df <- dc_candidates[dc_candidates$winner == "bowser",]
+twhite_df <- dc_candidates[dc_candidates$winner == "twhite",]
+rwhite_df <- dc_candidates[dc_candidates$winner == "rwhite",]
 
-dc_join <- dcmapclean %>% 
-  left_join(dc2, by = c("NAME" = "precinct")) 
+bowser_palette <- colorNumeric(palette = "Greens", 
+                              domain = bowser_df$bowser_percent)
+twhite_palette <- colorNumeric(palette = "Oranges", 
+                               domain = twhite_df$twhite_percent)
+rwhite_palette <- colorNumeric(palette = "Blues", 
+                               domain = rwhite_df$rwhite_percent)
 
+
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(
+    data = bowser_df,
+    fillColor = ~bowser_palette(bowser_df$bowser_percent),
+    stroke = TRUE,
+    smoothFactor = 0.2,
+    fillOpacity = 0.8,
+    color = "#666",
+    weight = 1,
+    popup = paste0("Winner: Muriel Bowser", "<br>",
+      dc_candidates$NAME20, "<br>",
+      "Percent of Vote: ", 
+      round(bowser_df$bowser_percent *100), "%") 
+  ) %>%
+  addPolygons(
+    data = twhite_df,
+    fillColor = ~twhite_palette(twhite_df$twhite_percent),
+    stroke = TRUE,
+    smoothFactor = 0.2,
+    fillOpacity = 0.8,
+    color = "#666",
+    weight = 1,
+    popup = paste0("Winner: Trayon White", "<br>",
+                   dc_candidates$NAME20, "<br>",
+      "Percent of Vote: ", 
+      round(twhite_df$twhite_percent *100), "%")
+  ) %>% 
+addPolygons(
+  data = rwhite_df,
+  fillColor = ~rwhite_palette(rwhite_df$rwhite_percent),
+  stroke = TRUE,
+  smoothFactor = 0.2,
+  fillOpacity = 0.8,
+  color = "#666",
+  weight = 1, 
+  popup = paste0("Winner: Robert White", "<br>",
+                 dc_candidates$NAME20, "<br>",
+      "Percent of Vote: ", 
+      round(rwhite_df$rwhite_percent *100), "%")
+)
 ```
-## Robert White Votes
+
+# Breakdown of Precinct By Race {.tabset}
+
+One of the interesting aspects of this map is how the strongest lead for Mayor Bowser was in the white districts. Pulling publicly available from the American Community Survey (US Census), I was able to map the racial demographics by precinct.
+
+As the map shows, DC is a racially segregated city. White or Black residents either make up the large majority or small minority of a given precinct. What likely attributed to Mayor Bowser's victory was her popularity across the city rather than one particular area. 
 
 ```{r}
-pal2 <- colorNumeric(
-  palette = "Blues",
-  domain = dc_join$rwhite_percent)
 
+acsmaps_sf <- readRDS("data/acsmaps_sf.RDS")
+
+### Mapping ----
+pal_black <- colorNumeric(palette = "Greens", domain = acsmaps_sf$black_pct)
+pal_white <- colorNumeric(palette = "Reds", domain = acsmaps_sf$white_pct)
+```
+
+## white precincts
+```{r}
 leaflet() %>% 
   addProviderTiles("CartoDB.Positron") %>% 
-  addPolygons(data = dc_join,
-              fillColor = ~pal2(rwhite_percent),
-              fillOpacity = 0.6,
-              weight = 1, 
-              opacity = 2,
-              color = "white",
-              highlight = highlightOptions(
-                weight = 2,
-                fillOpacity = 0.8,
-                bringToFront = T),
-        popup = paste0("Precinct Name: ", dc_join$precinct, "<br>",
-        "Votes per precinct: ", dc_join$rwhite, 2)) %>% 
-  addLegend("bottomright", pal = pal2, values = dc_join$rwhite_percent, 
-            title = "Robert White win percentage", opacity = 0.7)
-
-
+  addPolygons(data = acsmaps_sf,
+              fillColor = ~pal_white(white_pct),
+              fillOpacity = 0.8,
+              weight = 2, 
+              opacity = 1,
+              color = "black") %>% 
+  addLegend("bottomright", pal = pal_white, values = acsmaps_sf$white_pct, 
+            title = "Percent of White Ward residents", opacity = 0.7)
 ```
 
-## Mayor Bowser Votes
-
+## Black precincts
 ```{r}
-
-pal2 <- colorNumeric(
-  palette = "Greens",
-  domain = dc_join$bowser_percent)
-
 leaflet() %>% 
   addProviderTiles("CartoDB.Positron") %>% 
-  addPolygons(data = dc_join,
-              fillColor = ~pal2(bowser_percent),
-              fillOpacity = 0.6,
-              weight = 1, 
-              opacity = 2,
-              color = "white",
-              highlight = highlightOptions(
-                weight = 2,
-                fillOpacity = 0.8,
-                bringToFront = T),
-        popup = paste0("Precinct Name: ", dc_join$precinct, "<br>",
-        "Votes per precinct: ", dc_join$bowser, 2)) %>% 
-  addLegend("bottomright", pal = pal2, values = dc_join$bowser_percent, 
-            title = "Muriel Bowser win percentage", opacity = 0.7)
-
+  addPolygons(data = acsmaps_sf,
+              fillColor = ~pal_black(black_pct),
+              fillOpacity = 0.8,
+              weight = 2, 
+              opacity = 1,
+              color = "black") %>% 
+  addLegend("bottomright", pal = pal_black, values = acsmaps_sf$black_pct, 
+            title = "Percent of Black residents by Ward", opacity = 0.7)
 ```
-
-## Trayon White Votes
-
-```{r}
-pal2 <- colorNumeric(
-  palette = "Oranges",
-  domain = dc_join$twhite_percent)
-
-leaflet() %>% 
-  addProviderTiles("CartoDB.Positron") %>% 
-  addPolygons(data = dc_join,
-              fillColor = ~pal2(twhite_percent),
-              fillOpacity = 0.6,
-              weight = 1, 
-              opacity = 2,
-              color = "white",
-              highlight = highlightOptions(
-                weight = 2,
-                fillOpacity = 0.8,
-                bringToFront = T),
-        popup = paste0("Precinct Name: ", dc_join$precinct, "<br>",
-        "Votes per precinct: ", dc_join$twhite, 2)) %>% 
-  addLegend("bottomright", pal = pal2, values = dc_join$twhite_percent, 
-            title = "Trayon White win percentage", opacity = 0.7)
-```
-
-```{r}
-
-dc_t <- dccsv %>%  # turnout table
-  filter(ContestName == "REGISTERED VOTERS - TOTAL", Party == "DEM") %>%
-  select(PrecinctNumber, Votes) # Votes is total number of voters in precinct
-
-dc_t$PrecinctNumber <- as.character(dc_t$PrecinctNumber)
-dc2$precinct <- as.character(dc2$precinct)
-
-dc3 <- dc_t %>% 
- left_join(dc2, by = c("PrecinctNumber" = "precinct")) 
-
-
-
-```
-
-# Turnout Data
-
-
-
-One final item to consider is turnout, which measures the share of registered voters per precinct who turned out to vote. As we can see in the graph below, turnout of each candidate's voter base varied, but Bowser consistently had the highest percent of the vote per precinct, which is likely what brought her to victory. 
-
-
-```{r}
-
-dc4 <- dc3 %>% 
-  mutate(turnout = (nvotes/Votes))
-
-dc4 %>% 
-  select(PrecinctNumber, turnout, bowser_percent, twhite_percent, rwhite_percent) %>% 
-  pivot_longer(-c(PrecinctNumber, turnout), names_to = "candidate", 
-               values_to = "vote_percent",
-               names_pattern = "(.*)_percent") %>% 
-  ggplot(aes(x = turnout, y = vote_percent, color = candidate)) +
-  geom_point() +
-  scale_color_manual(values = c(wes_palette("Darjeeling1")[2],
-                               wes_palette("Darjeeling1")[5],
-                                wes_palette("Darjeeling1")[4]),
-                     guide = "none") +
-    ggtitle("Win Percent of Candidate relative to Voter Turnout") +
-  theme(plot.title = element_text(hjust = 0.5)) +
-  labs(x = "Turnout", y = "Vote percent win per Candidate")
-
-```
-
-I hope to visualize the data from the next election cycle and compare it to these results to continue to look for trends within elections. 
-
-
