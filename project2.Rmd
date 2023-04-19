@@ -48,7 +48,7 @@ Mayor Bowser also won with just 49.8% of the vote. As someone who is interested 
 ```
 
 
-# Chloropleth Mapping 
+# Choropleth Mapping 
 
 Below is a map of DC precincts courtesy of the DC Department of Elections.
 
