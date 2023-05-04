@@ -1,0 +1,158 @@
+---
+title: "Wrangling Election Data"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    toc: yes
+    toc_float: yes
+    includes:
+      in_header: GA_Script.html
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+```
+
+```{r load}
+library("tmaptools")
+library("rio")
+library("sf")
+library("leaflet")
+#library("jsonlite")
+library("tidyverse")
+library("readr")
+library("tigris")
+library("sp")
+library("stringr") # Remove word from string
+library("knitr")
+library("kableExtra")
+library("rcartocolor")
+library("wesanderson")
+options(tigris_use_cache = TRUE)
+
+```
+# Background on DC Mayoral Primary
+
+
+![Muriel Bowser Declares Victory](https://dcist.com/wp-content/uploads/sites/3/2022/06/MurielBowser2-1536x1025.jpeg)
+
+On June 22nd, 2022, Muriel Bowser won her second term for DC Mayor. Bowser's message: she is the next Marion Barry, the only mayor to serve three consecutive terms. During her election night victory, she said: "Tonight we choose a future where we won’t lose our Chocolate City, but we will invest in it, and we will continue to be a city for Black Washingtonians. ” [from DCist](https://dcist.com/story/22/06/21/dc-2022-primary-election-results-bowser-victory/)
+
+Mayor Bowser also won with just 49.8% of the vote. As someone who is interested in election data, I wanted to better understand the results of the elections through chloropleth visualizations. 
+
+
+```{r}
+
+
+```
+
+
+# Chloropleth Mapping 
+
+Below is a map of DC precincts courtesy of the DC Department of Elections.
+
+As we can see, there tends to be a geographic cluster where each candidate performed well. These choropleths only explain where each candidate did well relative to their best performance. Trayon White's best performance in one precinct was with 40% of the vote, whereas Mayor Bowser won some precincts with a blowout of close to 80%.
+
+
+```{r}
+
+dc_candidates <- readRDS("data/dc_candidates.RDS")
+
+bowser_df <- dc_candidates[dc_candidates$winner == "bowser",]
+twhite_df <- dc_candidates[dc_candidates$winner == "twhite",]
+rwhite_df <- dc_candidates[dc_candidates$winner == "rwhite",]
+
+bowser_palette <- colorNumeric(palette = "Greens", 
+                              domain = bowser_df$bowser_percent)
+twhite_palette <- colorNumeric(palette = "Oranges", 
+                               domain = twhite_df$twhite_percent)
+rwhite_palette <- colorNumeric(palette = "Blues", 
+                               domain = rwhite_df$rwhite_percent)
+
+
+leaflet() %>%
+  addProviderTiles("CartoDB.Positron") %>%
+  addPolygons(
+    data = bowser_df,
+    fillColor = ~bowser_palette(bowser_df$bowser_percent),
+    stroke = TRUE,
+    smoothFactor = 0.2,
+    fillOpacity = 0.8,
+    color = "#666",
+    weight = 1,
+    popup = paste0("Winner: Muriel Bowser", "<br>",
+      dc_candidates$NAME20, "<br>",
+      "Percent of Vote: ", 
+      round(bowser_df$bowser_percent *100), "%") 
+  ) %>%
+  addPolygons(
+    data = twhite_df,
+    fillColor = ~twhite_palette(twhite_df$twhite_percent),
+    stroke = TRUE,
+    smoothFactor = 0.2,
+    fillOpacity = 0.8,
+    color = "#666",
+    weight = 1,
+    popup = paste0("Winner: Trayon White", "<br>",
+                   dc_candidates$NAME20, "<br>",
+      "Percent of Vote: ", 
+      round(twhite_df$twhite_percent *100), "%")
+  ) %>% 
+addPolygons(
+  data = rwhite_df,
+  fillColor = ~rwhite_palette(rwhite_df$rwhite_percent),
+  stroke = TRUE,
+  smoothFactor = 0.2,
+  fillOpacity = 0.8,
+  color = "#666",
+  weight = 1, 
+  popup = paste0("Winner: Robert White", "<br>",
+                 dc_candidates$NAME20, "<br>",
+      "Percent of Vote: ", 
+      round(rwhite_df$rwhite_percent *100), "%")
+)
+```
+
+# Breakdown of Precinct By Race {.tabset}
+
+One of the interesting aspects of this map is how the strongest lead for Mayor Bowser was in the white districts. Pulling publicly available from the American Community Survey (US Census), I was able to map the racial demographics by precinct.
+
+As the map shows, DC is a racially segregated city. White or Black residents either make up the large majority or small minority of a given precinct. What likely attributed to Mayor Bowser's victory was her popularity across the city rather than one particular area. 
+
+```{r}
+
+acsmaps_sf <- readRDS("data/acsmaps_sf.RDS")
+
+### Mapping ----
+pal_black <- colorNumeric(palette = "Greens", domain = acsmaps_sf$black_pct)
+pal_white <- colorNumeric(palette = "Reds", domain = acsmaps_sf$white_pct)
+```
+
+## white precincts
+```{r}
+leaflet() %>% 
+  addProviderTiles("CartoDB.Positron") %>% 
+  addPolygons(data = acsmaps_sf,
+              fillColor = ~pal_white(white_pct),
+              fillOpacity = 0.8,
+              weight = 2, 
+              opacity = 1,
+              color = "black") %>% 
+  addLegend("bottomright", pal = pal_white, values = acsmaps_sf$white_pct, 
+            title = "Percent of White Ward residents", opacity = 0.7)
+```
+
+## Black precincts
+```{r}
+leaflet() %>% 
+  addProviderTiles("CartoDB.Positron") %>% 
+  addPolygons(data = acsmaps_sf,
+              fillColor = ~pal_black(black_pct),
+              fillOpacity = 0.8,
+              weight = 2, 
+              opacity = 1,
+              color = "black") %>% 
+  addLegend("bottomright", pal = pal_black, values = acsmaps_sf$black_pct, 
+            title = "Percent of Black residents by Ward", opacity = 0.7)
+```

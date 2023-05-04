@@ -1,15 +1,22 @@
 ---
-title: "Time Series Visualization"
+title: " "
 output: 
   html_document:
-    toc: FALSE
+    toc: true
+    toc_float: true
+    includes:
+      in_header: GA_Script.html
+
 ---
 
-###
+# Summer Crime Data Project
 
-In Summer 2022, I worked in the Criminal Division of the Department of Justice to analyze crime trends. Our office was tasked with visualizing the daily aggravated assault and homicide trends in over 20 major US cities. For the past few years, the office used STATA to map these trends, which was a time consuming process. I built a R script that scraped the data from the public police department data portals, turning a process that took hours to complete in only seconds.
+In Summer 2022, I worked in the Criminal Division of the Department of Justice to analyze crime trends. Our office was tasked with visualizing the daily aggravated assault and homicide trends in over 20 major US cities. For the past few years, the office used STATA to map these trends, which was a time consuming process. I built a R script that scraped the data from the public police department data portals, turning a few hours of work to complete in only seconds.
 
-
-![Time Series Chart](images/timeseries.png)
+![ ](.../images/timeseries.png)
 
 The black line represents the daily record of aggravated assault trends, while the red line is the rolling 5 year average. The 5 year average is intended to explain whether the daily pattern is a positive or negative deviation from the 5 year average. The two trends are closely correlated, telling us that current trends do not drastically deviate from previous ones.
+
+# Time Series in Data Analysis
+
+Time series are a type of statistical model that track patterns over a specific time interval, like days, months, and years. Policy use this tool both to forecast future trends and effectively communicate data to stakeholders. The main charge of our office at DOJ was to answer the question "What is going on with crime in America?" through data. The above graph is a snapshot the Department can use to make big decisions like determining where to allocate resources like personnel and research.
